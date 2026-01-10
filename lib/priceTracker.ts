@@ -55,9 +55,13 @@ export async function searchProducts(query: string): Promise<Product[]> {
           )
         : undefined,
       retailer: item.source || "Unknown",
-      url: item.link || "#",
+      url: item.link || item.product_link || item.shopping_link || "#",
       imageUrl: item.thumbnail || undefined,
     }));
+
+    if (results.length > 0) {
+      console.log("🔍 First product raw data sample:", JSON.stringify(results[0], null, 2));
+    }
 
     console.log("✅ Processed products:", products.length);
     // Sort by price (cheapest first)
