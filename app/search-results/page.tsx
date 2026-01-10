@@ -1,7 +1,7 @@
 "use client";
 
 import ProductResults from "@/app/components/ProductResults";
-import { useStructuredContent } from "@openai/chatgpt-apps-sdk/client";
+import { useWidgetProps } from "@/app/hooks";
 
 interface Product {
   id: string;
@@ -15,14 +15,14 @@ interface Product {
 }
 
 export default function SearchResultsPage() {
-  const structuredContent = useStructuredContent<{
-    query: string;
-    products: Product[];
-    totalResults: number;
+  const toolOutput = useWidgetProps<{
+    query?: string;
+    products?: Product[];
+    totalResults?: number;
   }>();
 
-  const products = structuredContent?.products || [];
-  const query = structuredContent?.query || "";
+  const products = toolOutput?.products || [];
+  const query = toolOutput?.query || "";
 
   return <ProductResults products={products} query={query} />;
 }
