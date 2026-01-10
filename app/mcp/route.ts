@@ -1,6 +1,7 @@
 import { baseURL } from "@/baseUrl";
 import { createMcpHandler } from "mcp-handler";
 import { z } from "zod";
+import { searchProducts } from "@/lib/priceTracker";
 
 const getAppsSdkCompatibleHtml = async (baseUrl: string, path: string) => {
   const result = await fetch(`${baseUrl}${path}`);
@@ -93,6 +94,58 @@ const handler = createMcpHandler(async (server) => {
           timestamp: new Date().toISOString(),
         },
         _meta: widgetMeta(contentWidget),
+      };
+    }
+  );
+
+  // === PRODUCT SEARCH TOOL ===
+  server.registerTool(
+    "search_products",
+    {
+      title: "Search Products",
+      description: "Search for products in Canadian stores (Walmart, Amazon, etc.) and find the best prices",
+      inputSchema: {
+        query: z.string().describe("The product to search for (e.g., 'iPhone 15', 'coffee maker')"),
+      },
+    },
+    async ({ query }) => {
+      const products = await searchProducts(query);
+      
+      if (products.length === 0) {
+        return {
+          content: [
+            {
+              type: "text",
+              text: `No products found for "${query}". Try a different search term.`,
+            },
+          ],
+        };
+      }
+
+      const cheapest = products[0];
+      const resultText = `Found ${products.length} products for "${query}".\n\n` +
+        `🏆 CHEAPEST: ${cheapest.title}\n` +
+        `Price: $${cheapest.price.toFixed(2)}\n` +
+        `Retailer: ${cheapest.retailer}\n` +
+        `${cheapest.discountPercentage ? `Discount: ${cheapest.discountPercentage}% off\n` : ''}` +
+        `\nAll results:\n` +
+        products.slice(0, 5).map((p, i) => 
+          `${i + 1}. ${p.title} - $${p.price.toFixed(2)} at ${p.retailer}${p.discountPercentage ? ` (${p.discountPercentage}% off)` : ''}`
+        ).join('\n');
+
+      return {
+        content: [
+          {
+            type: "text",
+            text: resultText,
+          },
+        ],
+        structuredContent: {
+          query,
+          totalResults: products.length,
+          cheapest: cheapest,
+          topResults: products.slice(0, 5),
+        },
       };
     }
   );
