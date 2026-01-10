@@ -98,15 +98,55 @@ const handler = createMcpHandler(async (server) => {
     }
   );
 
-  // === PRODUCT SEARCH TOOL ===
+  // === PRODUCT SEARCH TOOL WITH WIDGET ===
+  const searchWidget: ContentWidget = {
+    id: "search_products",
+    title: "Product Search Results",
+    templateUri: "ui://widget/search-results.html",
+    invoking: "🔍 Searching for products...",
+    invoked: "✅ Search complete",
+    html: await getAppsSdkCompatibleHtml(baseURL, "/search-results"),
+    description: "Display product search results with prices and retailers",
+    widgetDomain: "shopping",
+  };
+
+  server.registerResource(
+    "search-results-widget",
+    searchWidget.templateUri,
+    {
+      title: searchWidget.title,
+      description: searchWidget.description,
+      mimeType: "text/html+skybridge",
+      _meta: {
+        "openai/widgetDescription": searchWidget.description,
+        "openai/widgetPrefersBorder": true,
+      },
+    },
+    async (uri) => ({
+      contents: [
+        {
+          uri: uri.href,
+          mimeType: "text/html+skybridge",
+          text: `<html>${searchWidget.html}</html>`,
+          _meta: {
+            "openai/widgetDescription": searchWidget.description,
+            "openai/widgetPrefersBorder": true,
+            "openai/widgetDomain": searchWidget.widgetDomain,
+          },
+        },
+      ],
+    })
+  );
+
   server.registerTool(
-    "search_products",
+    searchWidget.id,
     {
       title: "Search Products",
       description: "Search for products in Canadian stores (Walmart, Amazon, etc.) and find the best prices",
       inputSchema: {
         query: z.string().describe("The product to search for (e.g., 'iPhone 15', 'coffee maker')"),
       },
+      _meta: widgetMeta(searchWidget),
     },
     async ({ query }) => {
       const products = await searchProducts(query);
@@ -127,11 +167,7 @@ const handler = createMcpHandler(async (server) => {
         `🏆 CHEAPEST: ${cheapest.title}\n` +
         `Price: $${cheapest.price.toFixed(2)}\n` +
         `Retailer: ${cheapest.retailer}\n` +
-        `${cheapest.discountPercentage ? `Discount: ${cheapest.discountPercentage}% off\n` : ''}` +
-        `\nAll results:\n` +
-        products.slice(0, 5).map((p, i) => 
-          `${i + 1}. ${p.title} - $${p.price.toFixed(2)} at ${p.retailer}${p.discountPercentage ? ` (${p.discountPercentage}% off)` : ''}`
-        ).join('\n');
+        `${cheapest.discountPercentage ? `Discount: ${cheapest.discountPercentage}% off\n` : ''}`;
 
       return {
         content: [
@@ -142,10 +178,10 @@ const handler = createMcpHandler(async (server) => {
         ],
         structuredContent: {
           query,
+          products: products.slice(0, 10),
           totalResults: products.length,
-          cheapest: cheapest,
-          topResults: products.slice(0, 5),
         },
+        _meta: widgetMeta(searchWidget),
       };
     }
   );
