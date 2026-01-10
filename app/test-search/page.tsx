@@ -32,8 +32,9 @@ export default function TestSearch() {
         <p className="text-center text-gray-600 mb-8">
           Find the cheapest products from Canadian retailers
         </p>
-      <div className="max-w-2xl">
-        <div className="flex gap-2 mb-4">
+      
+        <div className="max-w-2xl mx-auto">
+          <div className="flex gap-2 mb-4">
           <input
             type="text"
             value={query}
@@ -73,6 +74,7 @@ export default function TestSearch() {
             ))}
           </div>
         )}
+        </div>
       </div>
     </div>
   );
