@@ -20,9 +20,18 @@ export default function TestSearch() {
   };
 
   return (
-    <div className="min-h-screen p-8 bg-gray-50">
-      <h1 className="text-3xl font-bold mb-8">🔍 Product Search Test</h1>
-      
+    <div className="min-h-screen p-8 bg-gradient-to-br from-blue-50 to-purple-50">
+      <div className="max-w-4xl mx-auto">
+        <div className="bg-green-500 text-white px-4 py-2 rounded-lg mb-4 text-center font-bold">
+          ✅ NEW VERSION v2.0 - DEPLOYED
+        </div>
+        
+        <h1 className="text-4xl font-bold mb-2 text-center">
+          🔍 Product Price Tracker
+        </h1>
+        <p className="text-center text-gray-600 mb-8">
+          Find the cheapest products from Canadian retailers
+        </p>
       <div className="max-w-2xl">
         <div className="flex gap-2 mb-4">
           <input

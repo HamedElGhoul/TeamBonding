@@ -149,6 +149,10 @@ const handler = createMcpHandler(async (server) => {
       _meta: widgetMeta(searchWidget),
     },
     async ({ query }) => {
+      console.log("🔍 MCP Tool received query:", JSON.stringify(query));
+      console.log("🔍 Query type:", typeof query);
+      console.log("🔍 Query length:", query?.length);
+      
       const products = await searchProducts(query);
       
       if (products.length === 0) {
