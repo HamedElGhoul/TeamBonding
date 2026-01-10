@@ -14,21 +14,29 @@ export interface Product {
 export async function searchProducts(query: string): Promise<Product[]> {
   const apiKey = process.env.SERPAPI_KEY;
   
+  console.log("🔍 Searching for:", query);
+  console.log("🔑 API Key exists:", !!apiKey);
+  
   if (!apiKey) {
-    console.error("SERPAPI_KEY not found");
+    console.error("❌ SERPAPI_KEY not found");
     return [];
   }
 
   try {
-    const response = await axios.get("https://serpapi.com/search.json", {
-      params: {
-        engine: "google_shopping",
-        q: query,
-        location: "Canada",
-        gl: "ca",
-        api_key: apiKey,
-      },
-    });
+    const url = "https://serpapi.com/search.json";
+    const params = {
+      engine: "google_shopping",
+      q: query,
+      location: "Canada",
+      gl: "ca",
+      api_key: apiKey,
+    };
+    
+    console.log("📡 Making request to SerpAPI...");
+    const response = await axios.get(url, { params });
+    
+    console.log("✅ Response status:", response.status);
+    console.log("📦 Shopping results count:", response.data.shopping_results?.length || 0);
 
     const results = response.data.shopping_results || [];
     
@@ -51,10 +59,15 @@ export async function searchProducts(query: string): Promise<Product[]> {
       imageUrl: item.thumbnail || undefined,
     }));
 
+    console.log("✅ Processed products:", products.length);
     // Sort by price (cheapest first)
     return products.sort((a, b) => a.price - b.price);
   } catch (error) {
-    console.error("Error fetching products:", error);
+    console.error("❌ Error fetching products:", error);
+    if (axios.isAxiosError(error)) {
+      console.error("Response data:", error.response?.data);
+      console.error("Response status:", error.response?.status);
+    }
     return [];
   }
 }
