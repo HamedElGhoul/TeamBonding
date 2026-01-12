@@ -153,7 +153,6 @@ const handler = createMcpHandler(async (server) => {
       console.log("🔍 Query type:", typeof query);
       console.log("🔍 Query length:", query?.length);
       console.log("🔍 Query value:", query);
-      console.log("🔍 Arguments object:", JSON.stringify(arguments));
       
       const products = await searchProducts(query);
       
