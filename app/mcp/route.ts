@@ -76,9 +76,9 @@ const handler = createMcpHandler(async (server) => {
       title: contentWidget.title,
       description:
         "Fetch and display the homepage content with the name of the user",
-      inputSchema: z.object({
+      inputSchema: {
         name: z.string().describe("The name of the user to display on the homepage"),
-      }),
+      },
       _meta: widgetMeta(contentWidget),
     },
     async ({ name }) => {
@@ -143,15 +143,17 @@ const handler = createMcpHandler(async (server) => {
     {
       title: "Search Products",
       description: "Search for products in Canadian stores (Walmart, Amazon, etc.) and find the best prices",
-      inputSchema: z.object({
+      inputSchema: {
         query: z.string().describe("The product to search for (e.g., 'iPhone 15', 'coffee maker')"),
-      }),
+      },
       _meta: widgetMeta(searchWidget),
     },
     async ({ query }) => {
       console.log("🔍 MCP Tool received query:", JSON.stringify(query));
       console.log("🔍 Query type:", typeof query);
       console.log("🔍 Query length:", query?.length);
+      console.log("🔍 Query value:", query);
+      console.log("🔍 Arguments object:", JSON.stringify(arguments));
       
       const products = await searchProducts(query);
       
